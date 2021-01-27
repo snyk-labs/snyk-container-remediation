@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -56,64 +57,71 @@ func main() {
 		return
 	}
 
-	reader := bufio.NewReader(os.Stdin)
-	var sb strings.Builder
+	apiFlag := flag.Bool("api", false, "enable api mode")
+	//cliFlag := flag.Bool("cli", false, "enable cli mode")
+	flag.Parse()
 
-	for {
-		input, err := reader.ReadString('\n')
-		if err != nil && err == io.EOF {
-			break
-		}
-		sb.WriteString(input)
-	}
+	if *apiFlag {
 
-	var issues Issues
-	upgrades := make(map[string]*Remediation)
+		reader := bufio.NewReader(os.Stdin)
+		var sb strings.Builder
 
-	json.Unmarshal([]byte(sb.String()), &issues)
-
-	for i := 0; i < len(issues.Issues); i++ {
-		currentPkgName := issues.Issues[i].PkgName
-
-		if issues.Issues[i].IssueData.NearestFixedInVersion == "" {
-			break
-		}
-		if val, ok := upgrades[currentPkgName]; ok {
-			// this package already has a map entry
-			// check if current issue fixed in is greater than whats already there and add if so
-			// append issue ID to the fixesVulns list
-			upgrades[currentPkgName].FixesVulns = append(val.FixesVulns, issues.Issues[i].ID)
-			currentVersion, _ := version.NewVersion(issues.Issues[i].IssueData.NearestFixedInVersion)
-			existingVersion, _ := version.NewVersion(upgrades[currentPkgName].FarthestFixedInVersion)
-			if existingVersion.LessThan(currentVersion) {
-				upgrades[currentPkgName].FarthestFixedInVersion = currentVersion.String()
+		for {
+			input, err := reader.ReadString('\n')
+			if err != nil && err == io.EOF {
+				break
 			}
-
-		} else {
-			// this package has not been seen yet, add 1st remediation entry
-			var remediation Remediation
-			remediation.PkgName = currentPkgName
-			remediation.FarthestFixedInVersion = issues.Issues[i].IssueData.NearestFixedInVersion
-			remediation.FixesVulns = append(remediation.FixesVulns, issues.Issues[i].ID)
-			upgrades[issues.Issues[i].PkgName] = &remediation
+			sb.WriteString(input)
 		}
-	}
 
-	fmt.Println("{\n  \"upgrades\": [")
-	i := 1
-	for j := range upgrades {
-		outputJSON, _ := json.MarshalIndent(upgrades[j], "", "  ")
-		fmt.Print("    ")
-		for k := range outputJSON {
-			fmt.Printf("%s", string(outputJSON[k]))
-			if string(outputJSON[k]) == "\n" {
-				fmt.Print("    ")
+		var issues Issues
+		upgrades := make(map[string]*Remediation)
+
+		json.Unmarshal([]byte(sb.String()), &issues)
+
+		for i := 0; i < len(issues.Issues); i++ {
+			currentPkgName := issues.Issues[i].PkgName
+
+			if issues.Issues[i].IssueData.NearestFixedInVersion == "" {
+				break
+			}
+			if val, ok := upgrades[currentPkgName]; ok {
+				// this package already has a map entry
+				// check if current issue fixed in is greater than whats already there and add if so
+				// append issue ID to the fixesVulns list
+				upgrades[currentPkgName].FixesVulns = append(val.FixesVulns, issues.Issues[i].ID)
+				currentVersion, _ := version.NewVersion(issues.Issues[i].IssueData.NearestFixedInVersion)
+				existingVersion, _ := version.NewVersion(upgrades[currentPkgName].FarthestFixedInVersion)
+				if existingVersion.LessThan(currentVersion) {
+					upgrades[currentPkgName].FarthestFixedInVersion = currentVersion.String()
+				}
+
+			} else {
+				// this package has not been seen yet, add 1st remediation entry
+				var remediation Remediation
+				remediation.PkgName = currentPkgName
+				remediation.FarthestFixedInVersion = issues.Issues[i].IssueData.NearestFixedInVersion
+				remediation.FixesVulns = append(remediation.FixesVulns, issues.Issues[i].ID)
+				upgrades[issues.Issues[i].PkgName] = &remediation
 			}
 		}
-		if i < len(upgrades) {
-			fmt.Println(",")
+
+		fmt.Println("{\n  \"upgrades\": [")
+		i := 1
+		for j := range upgrades {
+			outputJSON, _ := json.MarshalIndent(upgrades[j], "", "  ")
+			fmt.Print("    ")
+			for k := range outputJSON {
+				fmt.Printf("%s", string(outputJSON[k]))
+				if string(outputJSON[k]) == "\n" {
+					fmt.Print("    ")
+				}
+			}
+			if i < len(upgrades) {
+				fmt.Println(",")
+			}
+			i++
 		}
-		i++
+		fmt.Println("\n  ]\n}")
 	}
-	fmt.Println("\n  ]\n}")
 }
