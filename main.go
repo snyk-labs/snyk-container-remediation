@@ -18,7 +18,7 @@ type Issues struct {
 	Issues []Issue `json:"issues"`
 }
 
-//Issue struct
+// Issue struct
 type Issue struct {
 	ID        string    `json:"id"`
 	PkgName   string    `json:"pkgName"`
@@ -26,22 +26,17 @@ type Issue struct {
 	FixInfo   FixInfo   `json:"fixInfo"`
 }
 
-//IssueData struct
+// IssueData struct
 type IssueData struct {
 	NearestFixedInVersion string `json:"nearestFixedInVersion"`
 }
 
-//FixInfo struct
+// FixInfo struct
 type FixInfo struct {
 	IsUpgradable bool `json:"isUpgradable"`
 }
 
-//output types
-
-// Remediations struct
-type Remediations struct {
-	Remediations []Remediation
-}
+// output types
 
 // Remediation struct
 type Remediation struct {
@@ -106,12 +101,12 @@ func main() {
 
 	fmt.Println("{\n  \"upgrades\": [")
 	i := 1
-	for k := range upgrades {
-		outputJSON, _ := json.MarshalIndent(upgrades[k], "", "  ")
+	for j := range upgrades {
+		outputJSON, _ := json.MarshalIndent(upgrades[j], "", "  ")
 		fmt.Print("    ")
-		for l := range outputJSON {
-			fmt.Printf("%s", string(outputJSON[l]))
-			if string(outputJSON[l]) == "\n" {
+		for k := range outputJSON {
+			fmt.Printf("%s", string(outputJSON[k]))
+			if string(outputJSON[k]) == "\n" {
 				fmt.Print("    ")
 			}
 		}
