@@ -1,4 +1,5 @@
 # snyk-container-remediation
+[![Go Report Card](https://goreportcard.com/badge/github.com/snyk-tech-services/snyk-container-remediation)](https://goreportcard.com/report/github.com/snyk-tech-services/snyk-container-remediation)
 
 Find the nearest version that fixes all vulns per package,
 similar to remediation advice for open source dependency projects
