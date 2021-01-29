@@ -1,8 +1,8 @@
 # snyk-container-remediation
 [![Go Report Card](https://goreportcard.com/badge/github.com/snyk-tech-services/snyk-container-remediation)](https://goreportcard.com/report/github.com/snyk-tech-services/snyk-container-remediation)
 
-Find the nearest version that fixes all vulns per package,
-similar to remediation advice for open source dependency projects
+Prototype that finds the farthest "fixedIn" version that fixes all known vulns per package,
+similar to remediation advice for open source dependency projects.
 
 ### with CLI output 
 `snyk test --json | go run main.go --cli`
