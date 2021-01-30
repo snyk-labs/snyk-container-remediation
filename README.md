@@ -1,7 +1,7 @@
 # snyk-container-remediation
 [![Go Report Card](https://goreportcard.com/badge/github.com/snyk-tech-services/snyk-container-remediation)](https://goreportcard.com/report/github.com/snyk-tech-services/snyk-container-remediation)
 
-Prototype that finds the farthest "fixedIn" version that fixes all known vulns per package,
+Prototype that finds the farthest "fixedIn" version that fixes all identified vulns per package,
 similar to remediation advice for open source dependency projects.
 
 ### with CLI output 
